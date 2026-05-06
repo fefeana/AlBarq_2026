@@ -1,4 +1,3 @@
-
 `yaml
 name: Build AlBarq APK
 
@@ -13,8 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -34,6 +32,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # --- Lint & Static Analysis ---
       - name: Run Android Lint
         run: ./gradlew lint
 
@@ -68,6 +67,7 @@ jobs:
           name: Pylint-Report
           path: pylint.log
 
+      # --- Security Scans ---
       - name: Run Bandit (Python Security Scan)
         run: bandit -r . -f xml -o bandit-report.xml
 
@@ -77,62 +77,7 @@ jobs:
           name: Bandit-Security
           path: bandit-report.xml
 
-      - name: Run Python Tests with Coverage
-        run: |
-          coverage run -m unittest discover
-          coverage report -m
-          coverage xml -o coverage.xml
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Python-Coverage
-          path: coverage.xml
-
-      - name: Run Android Unit Tests
-        run: ./gradlew test
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
-
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: AlBarq-Debug
-          path: app/build/outputs/apk/debug/*.apk
-
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-
-      - name: Sign Release APK
-        if: success()
-        run: |
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-            -keystore ${{ secrets.ALBARQ_KEYSTORE }} \
-            app/build/outputs/apk/release/app-release-unsigned.apk \
-            ${{ secrets.ALBARQKEYALIAS }}
-
-      - name: Align & Verify APK
-        run: |
-          zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-signed.apk
-          apksigner verify app-release-signed.apk
-
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: AlBarq-Release
-          path: app-release-signed.apk
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          args: >
-            -Dsonar.projectKey=fefeanaAlBarq2026
-            -Dsonar.organization=fefeana
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-
-      - name: Security Scan with Trivy
+      - name: Security Scan with Trivy (FS/Dependencies)
         uses: aquasecurity/trivy-action@0.20.0
         with:
           scan-type: fs
@@ -189,14 +134,71 @@ jobs:
           name: IaC-Security
           path: checkov-report.json
 
+      # --- Tests & Coverage ---
+      - name: Run Python Tests with Coverage
+        run: |
+          coverage run -m unittest discover
+          coverage report -m
+          coverage xml -o coverage.xml
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Python-Coverage
+          path: coverage.xml
+
+      - name: Run Android Unit Tests
+        run: ./gradlew test
+
+      # --- Build APKs ---
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlBarq-Debug
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      - name: Sign Release APK
+        if: success()
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore ${{ secrets.ALBARQ_KEYSTORE }} \
+            app/build/outputs/apk/release/app-release-unsigned.apk \
+            ${{ secrets.ALBARQKEYALIAS }}
+
+      - name: Align & Verify APK
+        run: |
+          zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-signed.apk
+          apksigner verify app-release-signed.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlBarq-Release
+          path: app-release-signed.apk
+
+      # --- SonarCloud ---
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=fefeanaAlBarq2026
+            -Dsonar.organization=fefeana
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      # --- Notifications ---
       - name: Notify Slack on Failure
         if: failure()
         uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
-            {
-              "text": "❌ فشل في Workflow AlBarq_2026 ⚡ بقيادة مسيو بوزيه مانيتيك 🎼. راجع التقارير فورًا!"
-            }
+            { "text": "❌ فشل في Workflow AlBarq_2026 ⚡ بقيادة مسيو بوزيه مانيتيك 🎼. راجع التقارير فورًا!" }
         env:
           SLACKWEBHOOKURL: ${{ secrets.SLACKWEBHOOKURL }}
 
@@ -214,9 +216,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
-            {
-              "text": "✅ نجاح Workflow AlBarq_2026 ⚡ كل التقارير جاهزة، الأوركسترا تعزف بتناغم!"
-            }
+            { "text": "✅ نجاح Workflow AlBarq_2026 ⚡ كل التقارير جاهزة، الأوركسترا تعزف بتناغم!" }
         env:
           SLACKWEBHOOKURL: ${{ secrets.SLACKWEBHOOKURL }}
 
@@ -229,6 +229,7 @@ jobs:
           title: "CI/CD Alert"
           color: "00FF00"
 
+      # --- Auto Issues ---
       - name: Auto-Create GitHub Issue on Failure
         if: failure()
         uses: actions/github-script@v7
@@ -239,7 +240,7 @@ jobs:
               repo: context.repo.repo,
               title: "❌ CI/CD Failure in AlBarq_2026 ⚡",
               body: "المطور شِغي ⚡\n\nحدث فشل في Workflow بقيادة مسيو بوزيه مانيتيك 🎼.\n\nراجع التقارير فورًا.",
-              labels: ["ci", "failure"]
+              labels: ["ci","failure"]
             })
 
       - name: Auto-Create GitHub Issue on Security Findings
@@ -250,6 +251,4 @@ jobs:
             const fs = require('fs');
             let issues = [];
             const reports = [
-              {file: 'bandit-report.xml', name: 'Bandit (Python)', label: 'security'},
-              {file: 'trivy-report.txt', name: 'Trivy (Dependencies/FS)', label: 'security'},
-              {file: 'docker-security-report
+              {
