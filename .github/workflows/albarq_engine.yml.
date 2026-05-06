@@ -249,6 +249,9 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            let issues = [];
-            const reports = [
-              {
+            const reportFiles = [
+              'bandit-report.xml',
+              'trivy-report.txt',
+              'docker-security-report.txt',
+              'gitleaks-report.json',
+              'checkov-report.json
