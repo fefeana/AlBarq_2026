@@ -1,7 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="colorPrimary">#1A1A2E</color>
-    <color name="colorPrimaryDark">#16213E</color>
-    <color name="colorAccent">#E94560</color>
-    <color name="textColor">#FFFFFF</color>
-</resources>
+xml
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="?android:colorBackground"
+    android:padding="16dp"
+    android:layoutwidth="matchparent"
+    android:layoutheight="matchparent">
+
+    <!-- بطاقة زجاجية -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@color/glassBackgroundDark"
+        android:padding="16dp"
+        android:layoutwidth="matchparent"
+        android:layoutheight="wrapcontent"
+        android:marginBottom="16dp">
+
+        <TextView
+            android:text="⚡ AlBarq Glass Card"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium"
+            android:layoutwidth="wrapcontent"
+            android:layoutheight="wrapcontent"/>
+
+        <TextView
+            android:text="واجهة زجاجية دقيقة وشفافة"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="14sp"
+            android:layoutwidth="wrapcontent"
+            android:layoutheight="wrapcontent"/>
+    </LinearLayout>
+
+    <!-- زر نيون -->
+    <Button
+        android:text="ابدأ الرحلة ⚡"
+        style="@style/Widget.AlBarq.Button"
+        android:layoutwidth="matchparent"
+        android:layoutheight="wrapcontent"
+        android:marginBottom="16dp"/>
+
+    <!-- Progress Bar زجاجي -->
+    <ProgressBar
+        style="@style/Widget.AlBarq.ProgressBar"
+        android:progress="65"
+        android:max="100"
+        android:layoutwidth="matchparent"
+        android:layout_height="8dp"/>
+</LinearLayout>
+`
