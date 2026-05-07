@@ -1,3 +1,40 @@
+python
+from Crypto.Cipher import AES
+from Crypto.Random import getrandombytes
+from Crypto.Protocol.KDF import PBKDF2
 import base64
-# AlBarq AI Protected Module
-exec(base64.b64decode('aW1wb3J0IGJhc2U2NAppbXBvcnQgdGltZQoKZGVmIGFsYmFycV9zZWN1cmVfdHVubmVsKGRhdGEpOgogICAgcHJpbnQoZiJbQUldIEluY29taW5nIERhdGE6IHtkYXRhfSIpCiAgICAjINmF2K3Yp9mD2KfYqSDYqti02YHZitixIEFFUy0yNTYg2LnYqNixINin2YTYqtmF2YjZitmHINio2YAgQmFzZTY0CiAgICBlbmNvZGVkX2RhdGEgPSBiYXNlNjQuYjY0ZW5jb2RlKGRhdGEuZW5jb2RlKCkpLmRlY29kZSgpCiAgICBwcmludChmIltBSV0gQXBwbHlpbmcgQUVTLTI1NiBFbmNyeXB0aW9uLi4uIikKICAgIHRpbWUuc2xlZXAoMC41KQogICAgcHJpbnQoZiJbQUldIFNlY3VyZSBQYXlsb2FkOiB7ZW5jb2RlZF9kYXRhfSIpCiAgICByZXR1cm4gZW5jb2RlZF9kYXRhCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgcHJpbnQoIi0tLSBBbEJhcnEgQUkgR2xvYmFsIFByb3RlY3Rpb24gQWN0aXZlIC0tLSIpCiAgICB0ZXN0X3BhY2tldCA9ICJQc2lwaG9uX1JlcXVlc3RfUG9ydF84ODg4IgogICAgYWxiYXJxX3NlY3VyZV90dW5uZWwodGVzdF9wYWNrZXQpCiAgICBwcmludCgiW0FJXSBTdGF0dXM6IENvbm5lY3Rpb24gZnVsbHkgc2VjdXJlZCBhbmQgaW52aXNpYmxlLiIpCg==').decode())
+
+class AlBarqSecureTunnel:
+    def init(self, password: str, salt: bytes = None):
+        # توليد Salt عشوائي إذا ما أعطيت واحد
+        self.salt = salt or getrandombytes(16)
+        # اشتقاق مفتاح AES‑256 من كلمة المرور باستخدام PBKDF2
+        self.key = PBKDF2(password, self.salt, dkLen=32, count=200000)
+
+    def encrypt(self, data: str) -> str:
+        iv = getrandombytes(12)  # GCM يحتاج IV بطول 12 بايت
+        cipher = AES.new(self.key, AES.MODE_GCM, nonce=iv)
+        encrypted, tag = cipher.encryptanddigest(data.encode())
+        payload = self.salt + iv + tag + encrypted
+        return base64.b64encode(payload).decode()
+
+    def decrypt(self, encoded_payload: str, password: str) -> str:
+        payload = base64.b64decode(encoded_payload)
+        salt, iv, tag, encrypted = payload[:16], payload[16:28], payload[28:44], payload[44:]
+        # إعادة توليد المفتاح بنفس كلمة المرور و Salt
+        key = PBKDF2(password, salt, dkLen=32, count=200000)
+        cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+        decrypted = cipher.decryptandverify(encrypted, tag)
+        return decrypted.decode()
+
+if name == "main":
+    print("--- AlBarq AI Global Protection Active ---")
+    tunnel = AlBarqSecureTunnel(password="كوالبرق")  # كلمة مرور شعائرية
+    testpacket = "PsiphonRequestPort8888"
+
+    encrypted = tunnel.encrypt(test_packet)
+    print(f"[AI] Secure Payload: {encrypted}")
+
+    decrypted = tunnel.decrypt(encrypted, password="كوالبرق")
+    print(f"[AI] Status: Original='{test_packet}', Decrypted='{decrypted}'")
+`
