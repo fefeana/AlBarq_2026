@@ -1,8 +1,10 @@
-html
-  <html>
-    <body>
-      <h1>Auth Callback</h1>
-      <p>تمت المصادقة بنجاح ⚡</p>
-    </body>
-  </html>
-  `  
+   <script>
+     const params = new URLSearchParams(window.location.search);
+     const code = params.get("code");
+     if (code) {
+       document.body.innerHTML = "<h1>تمت المصادقة بنجاح ⚡</h1><p>الكود: " + code + "</p>";
+     } else {
+       document.body.innerHTML = "<h1>لا يوجد رمز مصادقة</h1>";
+     }
+   </script>
+   `
