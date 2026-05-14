@@ -1,10 +1,12 @@
-   <script>
-     const params = new URLSearchParams(window.location.search);
-     const code = params.get("code");
-     if (code) {
-       document.body.innerHTML = "<h1>تمت المصادقة بنجاح ⚡</h1><p>الكود: " + code + "</p>";
-     } else {
-       document.body.innerHTML = "<h1>لا يوجد رمز مصادقة</h1>";
-     }
-   </script>
-   `
+fetch("https://us-central1-albarq.cloudfunctions.net/githubOAuth", {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ code })
+   })
+   .then(res => res.json())
+   .then(data => {
+     document.body.innerHTML = "<h1>تم الربط بنجاح ⚡</h1><p>التوكن: " + data.access_token + "</p>";
+   })
+   .catch(err => {
+     document.body.innerHTML = "<h1>خطأ في المصادقة</h1><p>" + err + "</p>";
+   });
