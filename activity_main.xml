@@ -1,51 +1,52 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#1A1A2E"
-    android:padding="20dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ALBARQ AI"
-        android:textColor="#E94560"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"/>
-
-    <TextView
-        android:id="@+id/status_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ready to Connect"
-        android:textColor="#BDC3C7"
-        android:layout_below="@id/logo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"/>
-
-    <Switch
-        android:id="@+id/switch_albarq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:scaleX="2"
-        android:scaleY="2" />
-
-    <LinearLayout
+    <!-- زر الاتصال بميراج -->
+    <Button
+        android:id="@+id/mirageBtn"
+        android:text="⚡🌿 Connect Mirage"
+        android:background="#4CAF50"
+        android:textColor="#FFFFFF"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingBottom="30dp">
-        
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Status: Secured"
-            android:textColor="#4ECCA3"
-            android:layout_marginRight="20dp"/>
-    </LinearLayout>
-</RelativeLayout>
+        android:layout_height="wrap_content"/>
+
+    <!-- زر الاتصال بالسحابة -->
+    <Button
+        android:id="@+id/cloudBtn"
+        android:text="🌐 Cloud Mode Connect"
+        android:background="#2196F3"
+        android:textColor="#FFFFFF"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- زر إعادة الاتصال -->
+    <Button
+        android:id="@+id/reconnectBtn"
+        android:text="🔄 Reconnect"
+        android:background="#FF9800"
+        android:textColor="#FFFFFF"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- زر الفصل -->
+    <Button
+        android:id="@+id/disconnectBtn"
+        android:text="❌ Disconnect"
+        android:background="#F44336"
+        android:textColor="#FFFFFF"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- رسالة الخطأ -->
+    <TextView
+        android:id="@+id/aiErrorMsg"
+        android:visibility="gone"
+        android:textColor="#e94560"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
