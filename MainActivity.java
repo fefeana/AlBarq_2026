@@ -1,47 +1,53 @@
-package com.albarq.ai;
+package com.shigi.albarq; // اسم الباكيج الخاص بمشروعك
 
 import android.os.Bundle;
-import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private AlBarqEngine alBarqEngine;
-    private Switch alBarqSwitch;
-    private TextView statusText;
+    private TextView aiErrorMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        alBarqEngine = new AlBarqEngine();
-        alBarqSwitch = findViewById(R.id.switch_albarq);
-        statusText = findViewById(R.id.status_text);
+        // إخفاء الشريط الأصفر (ActionBar)
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
-        alBarqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    alBarqEngine.startEngine();
-                    statusText.setText("الحالة: محرك البرق يعمل على المنفذ 8888");
-                    statusText.setTextColor(android.graphics.Color.GREEN);
-                } else {
-                    alBarqEngine.stopEngine();
-                    statusText.setText("الحالة: متوقف");
-                    statusText.setTextColor(android.graphics.Color.GRAY);
-                }
-            }
-        });
+        // تعريف المحرك
+        alBarqEngine = new AlBarqEngine();
+        aiErrorMsg = findViewById(R.id.aiErrorMsg);
+
+        // ربط الأزرار بالدوال
+        findViewById(R.id.mirageBtn).setOnClickListener(v -> safeCall("connect", "mirage"));
+        findViewById(R.id.cloudBtn).setOnClickListener(v -> safeCall("connect", "cloud"));
+        findViewById(R.id.reconnectBtn).setOnClickListener(v -> safeCall("reconnect", null));
+        findViewById(R.id.disconnectBtn).setOnClickListener(v -> safeCall("disconnect", null));
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (alBarqEngine != null) {
-            alBarqEngine.stopEngine();
+    // دالة الحماية: تمنع انهيار التطبيق لو المحرك غير معرف
+    private void safeCall(String method, String param) {
+        if (alBarqEngine == null) {
+            aiErrorMsg.setVisibility(View.VISIBLE);
+            aiErrorMsg.setText("❌ محرك البرق غير معرف! تأكد من تحميله بشكل صحيح.");
+            return;
+        }
+        switch (method) {
+            case "connect":
+                alBarqEngine.startEngine(param);
+                break;
+            case "reconnect":
+                alBarqEngine.reconnect();
+                break;
+            case "disconnect":
+                alBarqEngine.stopEngine();
+                break;
         }
     }
 }
