@@ -1,11 +1,10 @@
-package com.shigi.albarq; // نفس الباكيج لمشروعك
+package com.shigi.albarq;
 
 public class AlBarqEngine {
 
     private boolean isRunning = false;
     private String currentMode = null;
 
-    // تشغيل المحرك مع وضع محدد (mirage أو cloud)
     public void startEngine(String mode) {
         if (mode == null || mode.isEmpty()) {
             System.out.println("⚡ لا يمكن تشغيل المحرك بدون وضع محدد!");
@@ -16,7 +15,6 @@ public class AlBarqEngine {
         System.out.println("✅ محرك البرق بدأ في وضع: " + mode);
     }
 
-    // إعادة الاتصال بالمحرك
     public void reconnect() {
         if (!isRunning) {
             System.out.println("⚡ المحرك غير نشط، سيتم تشغيله من جديد...");
@@ -26,7 +24,6 @@ public class AlBarqEngine {
         }
     }
 
-    // إيقاف المحرك
     public void stopEngine() {
         if (!isRunning) {
             System.out.println("⏹️ المحرك متوقف بالفعل.");
@@ -36,12 +33,10 @@ public class AlBarqEngine {
         System.out.println("⏹️ تم إيقاف محرك البرق.");
     }
 
-    // التحقق من حالة المحرك
     public boolean isRunning() {
         return isRunning;
     }
 
-    // الحصول على الوضع الحالي
     public String getCurrentMode() {
         return currentMode;
     }
