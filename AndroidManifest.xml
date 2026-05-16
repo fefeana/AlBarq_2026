@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.shigi.albarq">
 
-    <!-- صلاحيات أساسية -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -14,7 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <!-- تسجيل الـ MainActivity -->
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
