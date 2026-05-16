@@ -1,49 +1,48 @@
-import java.io.*;
-import java.net.*;
+package com.shigi.albarq; // نفس الباكيج لمشروعك
 
 public class AlBarqEngine {
-    private ServerSocket serverSocket;
+
     private boolean isRunning = false;
-    private final int PORT = 8888;
+    private String currentMode = null;
 
-    public void startEngine() {
-        new Thread(() -> {
-            try {
-                serverSocket = new ServerSocket(PORT);
-                isRunning = true;
-                // رسالة تأكيد تشغيل المحرك والذكاء معاً
-                System.out.println("AlBarq AI: Engine & AI Brain Link Active");
-
-                while (isRunning) {
-                    Socket clientSocket = serverSocket.accept();
-                    
-                    // تقوية المحرك: استدعاء الذكاء الاصطناعي لتحليل الاتصال
-                    runAIBrain();
-                    
-                    clientSocket.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+    // تشغيل المحرك مع وضع محدد (mirage أو cloud)
+    public void startEngine(String mode) {
+        if (mode == null || mode.isEmpty()) {
+            System.out.println("⚡ لا يمكن تشغيل المحرك بدون وضع محدد!");
+            return;
+        }
+        isRunning = true;
+        currentMode = mode;
+        System.out.println("✅ محرك البرق بدأ في وضع: " + mode);
     }
 
-    private void runAIBrain() {
-        try {
-            // هذا هو الجسر البرمجي الذي يستدعي ملف الذكاء الخاص بك
-            ProcessBuilder pb = new ProcessBuilder("python", "brain_protected.py");
-            pb.start();
-        } catch (Exception e) {
-            System.out.println("AI Bridge Error: " + e.getMessage());
+    // إعادة الاتصال بالمحرك
+    public void reconnect() {
+        if (!isRunning) {
+            System.out.println("⚡ المحرك غير نشط، سيتم تشغيله من جديد...");
+            startEngine(currentMode != null ? currentMode : "default");
+        } else {
+            System.out.println("🔄 إعادة الاتصال بالمحرك في وضع: " + currentMode);
         }
     }
 
+    // إيقاف المحرك
     public void stopEngine() {
-        try {
-            isRunning = false;
-            if (serverSocket != null) serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!isRunning) {
+            System.out.println("⏹️ المحرك متوقف بالفعل.");
+            return;
         }
+        isRunning = false;
+        System.out.println("⏹️ تم إيقاف محرك البرق.");
+    }
+
+    // التحقق من حالة المحرك
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    // الحصول على الوضع الحالي
+    public String getCurrentMode() {
+        return currentMode;
     }
 }
