@@ -1,4 +1,4 @@
-name: AlBarq-2026 Unified Workflow
+name: ⚡ مسيو بوزيه مانيتيك 🚀
 
 on:
   push:
@@ -7,66 +7,92 @@ on:
     branches: [ "main" ]
 
 jobs:
-  albarq-ci-cd:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
-      # 4️⃣ تثبيت Dependencies مع رسالة خطأ واضحة
+      # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: npm install || echo "❌ Dependencies installation failed"
+        run: npm ci
 
-      # 5️⃣ فحص الكود (Lint/Test) مع رسائل أوضح
-      - name: Run lint and tests
+      # 4️⃣ Lint & Unit Tests
+      - name: Run lint
+        run: npm run lint
+      - name: Run unit tests
+        run: npm run test -- --coverage
+
+      # ✅ شرط التغطية ≥ 80%
+      - name: Check coverage threshold
         run: |
-          npm run lint || echo "⚠️ Lint step failed"
-          npm test || echo "⚠️ Unit tests failed"
+          COVERAGE=$(npx coverage-percentage ./coverage/lcov.info)
+          echo "Coverage: $COVERAGE%"
+          [ "$COVERAGE" -lt 80 ] && exit 1
 
-      # 6️⃣ بناء المشروع مع fallback
+      # 5️⃣ Build project
       - name: Build project
-        run: npm run build || echo "❌ Build step failed"
+        run: npm run build
 
-      # 7️⃣ فحص الأمان باستخدام CodeQL
-      - name: Security scan
-        uses: github/codeql-action/analyze@v2
+      # 6️⃣ Integration Tests (صارمة)
+      - name: Run integration tests
+        run: npm run test:integration
 
-      # 11️⃣ اختبار تكاملي مع رسالة خطأ واضحة
-      - name: Run integration test
-        run: npm run test:integration || echo "⚠️ Integration test failed"
+      # 7️⃣ Save Artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: build/
 
-      # 12️⃣ تزامن مع التوثيق
-      - name: Sync Documentation
+      # 8️⃣ Deploy API to Google Cloud Functions
+      - name: Deploy API
+        if: success()
         run: |
-          npm run docs:build || echo "⚠️ Documentation build failed"
-          git add docs/
-          git commit -m "📚 Documentation synced" || echo "❌ No new documentation changes"
-          git push
-
-      # 13️⃣ الالتزام التلقائي + إشعار خارجي
-      - name: Auto commit and notify
+          gcloud functions deploy albarq2026-api \
+            --runtime nodejs20 --trigger-http --allow-unauthenticated \
+            --project ${{ secrets.GCP_PROJECT_ID }}
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+
+      # 9️⃣ Deploy frontend to Firebase Hosting
+      - name: Deploy to Firebase Hosting
+        if: success()
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          channelId: live
+          projectId: your-firebase-project-id
+
+      # 🔟 Direct API Call to MCP Servers
+      - name: Direct MCP API Trigger
+        if: success()
         run: |
-          git config --global user.name "مسيو بوزيه مانيتيك"
-          git config --global user.email "actions@github.com"
-          git add .
-          git commit -m "⚡ Unified update from Workflow مسيو بوزيه مانيتيك" || echo "❌ No new changes"
-          git push
+          echo "🚀 Triggering MCP servers directly..."
+          curl -X POST https://mcp-server.example.com/api/deploy \
+            -H "Authorization: Bearer ${{ secrets.MCP_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "project": "AlBarq-2026",
+              "branch": "'"$GITHUB_REF_NAME"'",
+              "status": "deployed",
+              "timestamp": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
+            }'
 
-          START_TIME=$(date +%s)
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-
-          echo "✅ Workflow completed on branch: $GITHUB_REF_NAME"
-          echo "⏱️ Duration: ${DURATION} seconds"
-
-          curl -X POST "$DISCORD_WEBHOOK_URL" \
-          -H "Content-Type: application/json" \
-          -d "{\"content\":\"✅ Workflow completed on branch: $GITHUB_REF_NAME ⏱️ Duration: ${DURATION} seconds\"}"
+      # 1️⃣1️⃣ Backup to Google Cloud Storage
+      - name: Upload to Google Cloud Storage
+        if: success()
+        uses: google-github-actions/upload-cloud-storage@v1
+        with:
+          path: build/
+          destination: gs://your-bucket-name/builds/
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
