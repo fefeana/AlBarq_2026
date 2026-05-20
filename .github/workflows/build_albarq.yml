@@ -21,9 +21,9 @@ jobs:
         with:
           node-version: '18'
 
-      # 4️⃣ تثبيت Dependencies مع معالجة الأخطاء
+      # 4️⃣ تثبيت Dependencies مع رسالة خطأ واضحة
       - name: Install dependencies
-        run: npm install || echo "❌ خطأ في تثبيت الحزم"
+        run: npm install || echo "❌ Dependencies installation failed"
 
       # 5️⃣ فحص الكود (Lint/Test) مع رسائل أوضح
       - name: Run lint and tests
@@ -62,10 +62,9 @@ jobs:
 
       # 1️⃣1️⃣ اختبار تكاملي مع رسالة أوضح
       - name: Run integration test
-        run: |
-          npm run test:integration || echo "⚠️ Integration test failed"
+        run: npm run test:integration || echo "⚠️ Integration test failed"
 
-      # 1️⃣2️⃣ تزامن مع التوثيق
+      # 1️⃣2️⃣ تزامن مع التوثيق مع رسالة خطأ واضحة
       - name: Sync Documentation
         run: |
           npm run docs:build || echo "⚠️ Documentation build failed"
@@ -81,7 +80,7 @@ jobs:
           git config --global user.name "مسيو بوزيه مانيتيك"
           git config --global user.email "actions@github.com"
           git add .
-          git commit -m "⚡ تحديث شامل + اختبار + توثيق + تزامن من Workflow مسيو بوزيه مانيتيك" || echo "❌ لا توجد تغييرات جديدة"
+          git commit -m "⚡ تحديث شامل + اختبار + توثيق + تزامن من Workflow مسيو بوزيه مانيتيك" || echo "❌ No new changes"
           git push
 
           # 🌿 حساب مدة التنفيذ
@@ -90,10 +89,10 @@ jobs:
           DURATION=$((END_TIME - START_TIME))
 
           # 🌿 رسالة نجاح داخل الـ Logs مع تفاصيل
-          echo "✅ البرق اكتمل على الفرع: $GITHUB_REF_NAME"
-          echo "⏱️ مدة التنفيذ: ${DURATION} ثانية"
+          echo "✅ Workflow completed on branch: $GITHUB_REF_NAME"
+          echo "⏱️ Duration: ${DURATION} seconds"
 
           # 🔔 إشعار خارجي (Discord/Telegram) مع تفاصيل إضافية
           curl -X POST "$DISCORD_WEBHOOK_URL" \
           -H "Content-Type: application/json" \
-          -d "{\"content\":\"✅ البرق اكتمل على الفرع: $GITHUB_REF_NAME ⏱️ مدة التنفيذ: ${DURATION} ثانية\"}"
+          -d "{\"content\":\"✅ Workflow completed on branch: $GITHUB_REF_NAME ⏱️ Duration: ${DURATION} seconds\"}"
