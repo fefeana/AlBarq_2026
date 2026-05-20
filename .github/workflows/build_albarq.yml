@@ -60,13 +60,16 @@ jobs:
           git commit -m "⚡ Unified update from Workflow مسيو بوزيه مانيتيك" || echo "❌ No new changes"
           git push
 
+          # 🌿 حساب مدة التنفيذ
           START_TIME=$(date +%s)
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
 
+          # 🌿 رسالة نجاح داخل الـ Logs مع تفاصيل
           echo "✅ Workflow completed on branch: $GITHUB_REF_NAME"
           echo "⏱️ Duration: ${DURATION} seconds"
 
+          # 🔔 إشعار خارجي (Discord/Telegram) مع تفاصيل إضافية
           curl -X POST "$DISCORD_WEBHOOK_URL" \
           -H "Content-Type: application/json" \
           -d "{\"content\":\"✅ Workflow completed on branch: $GITHUB_REF_NAME ⏱️ Duration: ${DURATION} seconds\"}"
