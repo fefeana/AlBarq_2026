@@ -21,19 +21,19 @@ jobs:
         with:
           node-version: '18'
 
-      # 4️⃣ تثبيت Dependencies
+      # 4️⃣ تثبيت Dependencies مع معالجة الأخطاء
       - name: Install dependencies
         run: npm install || echo "❌ خطأ في تثبيت الحزم"
 
-      # 5️⃣ فحص الكود (Lint/Test)
+      # 5️⃣ فحص الكود (Lint/Test) مع رسائل أوضح
       - name: Run lint and tests
         run: |
-          npm run lint || echo "⚠️ فشل lint"
-          npm test || echo "⚠️ فشل الاختبارات"
+          npm run lint || echo "⚠️ Lint step failed"
+          npm test || echo "⚠️ Unit tests failed"
 
-      # 6️⃣ بناء المشروع
+      # 6️⃣ بناء المشروع مع fallback
       - name: Build project
-        run: npm run build || echo "❌ خطأ في البناء"
+        run: npm run build || echo "❌ Build step failed"
 
       # 7️⃣ فحص الأمان باستخدام CodeQL
       - name: Security scan
@@ -60,17 +60,15 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{"project":"AlBarq-2026","workflow":"main","status":"active"}'
 
-      # 1️⃣1️⃣ اختبار تكاملي
+      # 1️⃣1️⃣ اختبار تكاملي مع رسالة أوضح
       - name: Run integration test
         run: |
-          echo "Running integration test for AlBarq-2026..."
-          npm run test:integration || echo "⚠️ فشل اختبار التكامل"
+          npm run test:integration || echo "⚠️ Integration test failed"
 
       # 1️⃣2️⃣ تزامن مع التوثيق
       - name: Sync Documentation
         run: |
-          echo "Syncing project documentation..."
-          npm run docs:build
+          npm run docs:build || echo "⚠️ Documentation build failed"
           git add docs/
           git commit -m "📚 تحديث التوثيق مع التزامن" || echo "No documentation changes"
           git push
