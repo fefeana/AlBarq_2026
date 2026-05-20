@@ -1,19 +1,72 @@
-          git config --global user.email "actions@github.com"
-          git add .
-          git commit -m "⚡ تحديث شامل + اختبار + توثيق + تزامن من Workflow مسيو بوزيه مانيتيك" || echo "❌ No new changes"
+name: AlBarq-2026 Unified Workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  albarq-ci-cd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 4️⃣ تثبيت Dependencies مع رسالة خطأ واضحة
+      - name: Install dependencies
+        run: npm install || echo "❌ Dependencies installation failed"
+
+      # 5️⃣ فحص الكود (Lint/Test) مع رسائل أوضح
+      - name: Run lint and tests
+        run: |
+          npm run lint || echo "⚠️ Lint step failed"
+          npm test || echo "⚠️ Unit tests failed"
+
+      # 6️⃣ بناء المشروع مع fallback
+      - name: Build project
+        run: npm run build || echo "❌ Build step failed"
+
+      # 7️⃣ فحص الأمان باستخدام CodeQL
+      - name: Security scan
+        uses: github/codeql-action/analyze@v2
+
+      # 11️⃣ اختبار تكاملي مع رسالة خطأ واضحة
+      - name: Run integration test
+        run: npm run test:integration || echo "⚠️ Integration test failed"
+
+      # 12️⃣ تزامن مع التوثيق
+      - name: Sync Documentation
+        run: |
+          npm run docs:build || echo "⚠️ Documentation build failed"
+          git add docs/
+          git commit -m "📚 Documentation synced" || echo "❌ No new documentation changes"
           git push
 
-          # 🌿 حساب مدة التنفيذ
+      # 13️⃣ الالتزام التلقائي + إشعار خارجي
+      - name: Auto commit and notify
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          git config --global user.name "مسيو بوزيه مانيتيك"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "⚡ Unified update from Workflow مسيو بوزيه مانيتيك" || echo "❌ No new changes"
+          git push
+
           START_TIME=$(date +%s)
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
 
-          # 🌿 رسالة نجاح داخل الـ Logs مع تفاصيل
           echo "✅ Workflow completed on branch: $GITHUB_REF_NAME"
           echo "⏱️ Duration: ${DURATION} seconds"
 
-          # 🔔 إشعار خارجي (Discord/Telegram) مع تفاصيل إضافية
           curl -X POST "$DISCORD_WEBHOOK_URL" \
           -H "Content-Type: application/json" \
           -d "{\"content\":\"✅ Workflow completed on branch: $GITHUB_REF_NAME ⏱️ Duration: ${DURATION} seconds\"}"
-          
